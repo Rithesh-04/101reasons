@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Why I Love You</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<style>
+:root {
+  --bg1: #ffe6f0;
+  --bg2: #ffd1e6;
+  --card: #ffffffcc;
+  --accent: #ff4d88;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at top, var(--bg1), var(--bg2));
+  font-family: system-ui, sans-serif;
+  padding: 16px;
+}
+
+.card {
+  width: min(420px, 92vw);
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 28px 22px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,.15);
+}
+
+h1 { font-size: 26px; }
+
+.counter {
+  font-size: 52px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.reason {
+  font-size: 18px;
+  margin: 20px 0;
+  min-height: 70px;
+  animation: fade .35s ease;
+}
+
+button {
+  padding: 14px 26px;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0,0,0,.2);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.final {
+  display: none;
+  animation: fade .6s ease;
+}
+
+.final img {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 18px;
+  margin: 20px auto 12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+}
+
+.final h2 {
+  font-size: 32px;
+  color: var(--accent);
+  margin: 10px 0;
+}
+
+.footer {
+  margin-top: 18px;
+  font-size: 13px;
+  opacity: .7;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🎶 Background Music -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="lover.mp3" type="audio/mpeg">
+</audio>
+
+<div class="card">
+  <h1 id="title"></h1>
+
+  <div id="mainContent">
+    <div class="counter" id="count">0</div>
+    <div class="reason" id="reason">Tap the button 💕</div>
+    <button id="btn" onclick="nextReason()">Another reason</button>
+  </div>
+
+  <!-- 💖 FINAL SCREEN -->
+  <div class="final" id="finalScreen">
+    <img src="us.jpg" alt="Us ❤️">
+    <h2>I love you</h2>
+  </div>
+
+  <div class="footer">There’s no end to this 😊</div>
+</div>
+
+<script>
+const herName = "Moimoi";
+
+document.getElementById("title").textContent =
+  `Reasons Why I Love You, ${herName} ❤️`;
+
+const music = document.getElementById("bgMusic");
+music.volume = 0.25;
+let musicStarted = false;
+
+const countEl = document.getElementById("count");
+const reasonEl = document.getElementById("reason");
+const button = document.getElementById("btn");
+const mainContent = document.getElementById("mainContent");
+const finalScreen = document.getElementById("finalScreen");
+
+let count = 0;
+
+/* ✅ EXACTLY 99 REASONS (UNCHANGED) */
+const reasons = [
+    // 1–10
+  "You make my bad days lighter",
+  "Your smile feels like home",
+  "You understand me without words",
+  "You support me even when I doubt myself",
+  "You make ordinary moments special",
+  "You laugh at my dumb jokes 😅",
+  "You make me want to be better",
+  "You are my safe place",
+  "You make life feel softer",
+  "You accept me as I am",
+
+  // 11–20
+  "You make my heart feel calm",
+  "You feel like destiny",
+  "You make love feel easy",
+  "You believe in me",
+  "You listen without judging",
+  "You make silence comfortable",
+  "You notice the little things",
+  "You make me feel chosen",
+  "You bring peace into my life",
+  "You make my heart smile",
+
+  // 21–30
+  "You make the future feel exciting",
+  "You make my world kinder",
+  "You make me feel deeply loved",
+  "You make love feel safe",
+  "You inspire me to grow",
+  "You make hard days easier",
+  "You make happiness feel natural",
+  "You care in ways that truly matter",
+  "You make me feel understood",
+  "You make my heart feel full",
+
+  // 31–40
+  "You make me grateful every day",
+  "You turn moments into memories",
+  "You make love feel calm and strong",
+  "You make me feel enough",
+  "You make life feel warmer",
+  "You make me smile without trying",
+  "You make my heart choose you",
+  "You bring light into my life",
+  "You make ordinary days beautiful",
+  "You make my worries feel smaller",
+
+  // 41–50
+  "You make me feel safe to be myself",
+  "You make my heart feel seen",
+  "You make the world feel softer",
+  "You make me believe in us",
+  "You make me feel lucky",
+  "You make my days brighter",
+  "You make me feel supported",
+  "You make life feel meaningful",
+  "You make me feel at peace",
+  "You make my heart feel warm",
+
+  // 51–60
+  "You make me feel appreciated",
+  "You make my heart feel complete",
+  "You make me feel valued",
+  "You make love feel like home",
+  "You make me feel truly loved",
+  "You make my heart feel safe",
+  "You make love feel gentle",
+  "You make my life feel balanced",
+  "You make me feel calm inside",
+  "You make love feel honest",
+
+  // 61–70
+  "You make my heart feel secure",
+  "You make love feel natural",
+  "You make my days feel lighter",
+  "You make my heart feel steady",
+  "You make love feel peaceful",
+  "You make me feel deeply understood",
+  "You make my heart feel open",
+  "You make love feel reassuring",
+  "You make my life feel fuller",
+  "You make me feel emotionally safe",
+
+  // 71–80
+  "You make love feel warm and kind",
+  "You make my heart feel at ease",
+  "You make me feel seen and heard",
+  "You make love feel strong",
+  "You make my heart feel grateful",
+  "You make love feel timeless",
+  "You make me feel lucky to love you",
+  "You make my heart feel chosen",
+  "You make love feel real",
+  "You make me feel deeply connected",
+
+  // 81–99
+  "You make my heart feel whole",
+  "You make love feel like forever",
+  "You make me feel endlessly thankful",
+  "You make my heart feel at home",
+  "You make love feel right",
+  "You make me feel truly happy",
+  "You make my heart feel complete",
+  "You make my life feel brighter with you",
+  "You make love feel effortless",
+  "You make my heart feel peaceful with you",
+  "You make every day better just by being you",
+  "You make love feel steady and true",
+  "You make my heart feel safe and loved",
+  "You make my world better by being in it",
+  "You make my heart choose you every single time",
+  "You make love feel beautiful",
+  "You make me feel lucky every single day",
+  "You make my heart feel full of love",
+  "You make loving you the easiest thing ever"
+];
+
+function celebrate() {
+  confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+}
+
+function nextReason() {
+  if (!musicStarted) {
+    music.play().catch(() => {});
+    musicStarted = true;
+  }
+
+  if (count >= 100) return; // ⛔ stop completely
+
+  count++;
+  countEl.textContent = count;
+
+  if (count === 10 || count === 25 || count === 100) celebrate();
+
+  if (count === 25) {
+    reasonEl.textContent =
+      `${herName}, I don’t just love you for these reasons — I love you because you are YOU ❤️`;
+    return;
+  }
+
+  if (count === 100) {
+    reasonEl.textContent =
+      "I’ve run out of words, but my love hasn’t 💖";
+
+    // ⛔ STOP & SHOW FINAL
+    button.disabled = true;
+    mainContent.style.display = "none";
+    finalScreen.style.display = "block";
+    celebrate();
+    return;
+  }
+
+  reasonEl.style.animation = "none";
+  reasonEl.offsetHeight;
+  reasonEl.style.animation = "fade .35s ease";
+  reasonEl.textContent = reasons[count - 1];
+}
+</script>
+
+</body>
+</html>
